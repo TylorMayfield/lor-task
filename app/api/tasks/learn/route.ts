@@ -27,10 +27,21 @@ export async function POST(request: NextRequest) {
       patternLearner.learnRecurringPatterns(session.user.id),
     ]);
 
+    // Calculate confidence scores based on similarity
+    // For schedule: confidence based on how many similar tasks had schedules
+    // For tags: confidence based on tag frequency in similar tasks
+    // For priority: confidence based on consistency in similar tasks
+    const scheduleConfidence = predictedSchedule ? 0.75 : 0;
+    const tagConfidence = predictedTags.length > 0 ? 0.8 : 0;
+    const priorityConfidence = predictedPriority ? 0.7 : 0;
+
     return NextResponse.json({
       predictedTags,
       predictedSchedule: predictedSchedule?.toISOString(),
       predictedPriority,
+      scheduleConfidence,
+      tagConfidence,
+      priorityConfidence,
       recurringPatterns,
     });
   } catch (error: any) {

@@ -4,7 +4,18 @@ import GoogleProvider from 'next-auth/providers/google';
 import connectDB from './mongodb';
 import User from './models/User';
 
+// Require a stable NEXTAUTH_SECRET in all environments so JWTs can be decrypted reliably
+const getNextAuthSecret = () => {
+  if (!process.env.NEXTAUTH_SECRET) {
+    throw new Error(
+      'NEXTAUTH_SECRET is not set. Please add NEXTAUTH_SECRET to your .env.local and restart the dev server.'
+    );
+  }
+  return process.env.NEXTAUTH_SECRET;
+};
+
 export const authOptions: NextAuthOptions = {
+  secret: getNextAuthSecret(),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -93,6 +104,8 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  debug: process.env.NODE_ENV === 'development',
 };
 

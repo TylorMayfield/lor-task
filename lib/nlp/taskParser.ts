@@ -41,13 +41,31 @@ export function parseTaskFromNLP(input: string): ParsedTask {
     }
   }
 
-  // Extract dates
-  const dates = (doc as any).dates();
+  // Extract dates using regex patterns (no external plugin needed)
+  let datePhrases: string[] = [];
+  const datePatterns = [
+    /\b(today|tomorrow|yesterday)\b/gi,
+    /\b(next|this)\s+(week|month|year|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,
+    /\b(in|after)\s+\d+\s+(days?|weeks?|months?|years?)\b/gi,
+    /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g,
+    /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}\b/gi,
+    /\b\d{1,2}\s+(january|february|march|april|may|june|july|august|september|october|november|december)\b/gi,
+  ];
+
+  datePatterns.forEach((pattern) => {
+    let match;
+    while ((match = pattern.exec(input)) !== null) {
+      if (!datePhrases.includes(match[0])) {
+        datePhrases.push(match[0]);
+      }
+    }
+  });
+
   let dueDate: Date | undefined;
   let scheduledDate: Date | undefined;
 
-  dates.forEach((date: any) => {
-    const dateStr = date.text();
+  datePhrases.forEach((dateStr: string) => {
+    // Try to parse the date string
     const parsedDate = new Date(dateStr);
     if (!isNaN(parsedDate.getTime())) {
       if (lowerInput.includes('due') || lowerInput.includes('deadline')) {
@@ -92,8 +110,8 @@ export function parseTaskFromNLP(input: string): ParsedTask {
 
   // Clean up the title (remove date/time mentions, priority words)
   let title = input;
-  dates.forEach((date: any) => {
-    title = title.replace(date.text(), '').trim();
+  datePhrases.forEach((phrase: string) => {
+    title = title.replace(phrase, '').trim();
   });
   
   priorityKeywords.urgent.concat(priorityKeywords.high, priorityKeywords.low).forEach((keyword) => {

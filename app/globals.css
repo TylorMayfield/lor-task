@@ -3,302 +3,460 @@
 @tailwind utilities;
 
 :root {
-  /* Modern Appealing Color System */
-  --md-primary: #0EA5E9;
-  --md-primary-container: #E0F2FE;
-  --md-on-primary: #FFFFFF;
-  --md-on-primary-container: #0C4A6E;
+  /* iOS Design System Colors */
+  --ios-blue: #0a84ff;
+  --ios-blue-light: #5ac8fa;
+  --ios-green: #30d158;
+  --ios-indigo: #5e5ce6;
+  --ios-orange: #ff9f0a;
+  --ios-pink: #ff375f;
+  --ios-purple: #bf5af2;
+  --ios-red: #ff453a;
+  --ios-teal: #64d2ff;
+  --ios-yellow: #ffd60a;
   
-  --md-secondary: #14B8A6;
-  --md-secondary-container: #CCFBF1;
-  --md-on-secondary: #FFFFFF;
-  --md-on-secondary-container: #134E4A;
+  /* iOS Dark System Colors */
+  --ios-system-background: #000000;
+  --ios-system-background-secondary: #1c1c1e;
+  --ios-system-background-tertiary: #2c2c2e;
+  --ios-secondary-system-background: #1c1c1e;
+  --ios-tertiary-system-background: #2c2c2e;
   
-  --md-tertiary: #8B5CF6;
-  --md-tertiary-container: #EDE9FE;
-  --md-on-tertiary: #FFFFFF;
-  --md-on-tertiary-container: #4C1D95;
+  --ios-label: #ffffff;
+  --ios-secondary-label: rgba(235, 235, 245, 0.6);
+  --ios-tertiary-label: rgba(235, 235, 245, 0.3);
+  --ios-quaternary-label: rgba(235, 235, 245, 0.18);
   
-  --md-error: #EF4444;
-  --md-error-container: #FEE2E2;
-  --md-on-error: #FFFFFF;
-  --md-on-error-container: #991B1B;
+  --ios-separator: rgba(84, 84, 88, 0.65);
+  --ios-opaque-separator: rgba(56, 56, 58, 1);
   
-  --md-surface: #FFFFFF;
-  --md-surface-variant: #F8FAFC;
-  --md-on-surface: #0F172A;
-  --md-on-surface-variant: #64748B;
+  --ios-grouped-background: #000000;
+  --ios-secondary-grouped-background: #1c1c1e;
+  --ios-tertiary-grouped-background: #2c2c2e;
   
-  --md-outline: #CBD5E1;
-  --md-outline-variant: #E2E8F0;
+  /* Blur effects */
+  --ios-blur-light: blur(20px) saturate(180%);
+  --ios-blur-medium: blur(40px) saturate(180%);
+  --ios-blur-heavy: blur(80px) saturate(180%);
   
-  --md-shadow: rgba(15, 23, 42, 0.1);
+  /* Shadows (iOS style) */
+  --ios-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
+  --ios-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.7);
+  --ios-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.8);
+  --ios-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.85);
   
-  /* Elevation shadows (Material Design) */
-  --md-elevation-0: none;
-  --md-elevation-1: 0px 1px 2px 0px rgba(15, 23, 42, 0.05), 0px 1px 3px 0px rgba(15, 23, 42, 0.1);
-  --md-elevation-2: 0px 2px 4px -1px rgba(15, 23, 42, 0.06), 0px 4px 6px -1px rgba(15, 23, 42, 0.1);
-  --md-elevation-3: 0px 4px 6px -1px rgba(15, 23, 42, 0.1), 0px 2px 4px -1px rgba(15, 23, 42, 0.06);
-  --md-elevation-4: 0px 10px 15px -3px rgba(15, 23, 42, 0.1), 0px 4px 6px -2px rgba(15, 23, 42, 0.05);
-  --md-elevation-5: 0px 20px 25px -5px rgba(15, 23, 42, 0.1), 0px 10px 10px -5px rgba(15, 23, 42, 0.04);
-  --md-elevation-8: 0px 25px 50px -12px rgba(15, 23, 42, 0.25);
-  --md-elevation-12: 0px 35px 60px -12px rgba(15, 23, 42, 0.3);
-  --md-elevation-16: 0px 40px 80px -16px rgba(15, 23, 42, 0.35);
-  --md-elevation-24: 0px 50px 100px -24px rgba(15, 23, 42, 0.4);
+  /* Legacy Material Design vars for compatibility */
+  --md-primary: var(--ios-blue);
+  --md-primary-container: rgba(10, 132, 255, 0.2);
+  --md-on-primary: #ffffff;
+  --md-on-primary-container: var(--ios-blue);
+  
+  --md-surface: var(--ios-system-background);
+  --md-surface-variant: var(--ios-secondary-system-background);
+  --md-on-surface: var(--ios-label);
+  --md-on-surface-variant: var(--ios-secondary-label);
+  
+  --md-outline: var(--ios-separator);
+  --md-outline-variant: var(--ios-separator);
 }
 
 body {
-  color: var(--md-on-surface);
-  background: var(--md-surface);
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: var(--ios-label);
+  background: var(--ios-grouped-background);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
+  font-feature-settings: 'kern' 1;
+  text-rendering: optimizeLegibility;
+}
+
+/* Dark theme overrides for Tailwind utility colors that use light backgrounds */
+.dark-theme {
+  background-color: var(--ios-grouped-background);
+  color: var(--ios-label);
+}
+
+.dark-theme .bg-white,
+.dark-theme .bg-gray-50,
+.dark-theme .bg-gray-100 {
+  background-color: var(--ios-system-background) !important;
+}
+
+.dark-theme .text-gray-900,
+.dark-theme .text-[var(--md-on-surface)] {
+  color: var(--ios-label) !important;
+}
+
+.dark-theme .text-gray-700,
+.dark-theme .text-gray-600,
+.dark-theme .text-[var(--md-on-surface-variant)] {
+  color: var(--ios-secondary-label) !important;
+}
+
+.dark-theme .border-gray-200,
+.dark-theme .border-[var(--md-outline-variant)] {
+  border-color: var(--ios-separator) !important;
+}
+
+.dark-theme .shadow-sm,
+.dark-theme .shadow-md,
+.dark-theme .shadow-lg {
+  box-shadow: var(--ios-shadow-sm);
 }
 
 @layer utilities {
-  /* Material Design Typography */
+  /* iOS Typography System */
+  .ios-large-title {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 41px;
+    letter-spacing: 0.37px;
+  }
+  
+  .ios-title-1 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 34px;
+    letter-spacing: 0.36px;
+  }
+  
+  .ios-title-2 {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 28px;
+    letter-spacing: 0.35px;
+  }
+  
+  .ios-title-3 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 25px;
+    letter-spacing: 0.38px;
+  }
+  
+  .ios-headline {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: -0.41px;
+  }
+  
+  .ios-body {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: -0.41px;
+  }
+  
+  .ios-callout {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 21px;
+    letter-spacing: -0.32px;
+  }
+  
+  .ios-subhead {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: -0.24px;
+  }
+  
+  .ios-footnote {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+    letter-spacing: -0.08px;
+  }
+  
+  .ios-caption-1 {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: 0;
+  }
+  
+  .ios-caption-2 {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 13px;
+    letter-spacing: 0.07px;
+  }
+  
+  /* Legacy Material Design Typography (for compatibility) */
   .md-headline-large {
     font-size: 2rem;
-    font-weight: 400;
+    font-weight: 700;
     line-height: 2.5rem;
     letter-spacing: 0;
   }
   
   .md-headline-medium {
     font-size: 1.75rem;
-    font-weight: 400;
+    font-weight: 700;
     line-height: 2.25rem;
     letter-spacing: 0;
   }
   
   .md-headline-small {
     font-size: 1.5rem;
-    font-weight: 400;
+    font-weight: 700;
     line-height: 2rem;
     letter-spacing: 0;
   }
   
   .md-title-large {
     font-size: 1.375rem;
-    font-weight: 400;
+    font-weight: 600;
     line-height: 1.75rem;
     letter-spacing: 0;
   }
   
   .md-title-medium {
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.5rem;
-    letter-spacing: 0.15px;
+    letter-spacing: -0.24px;
   }
   
   .md-title-small {
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.25rem;
-    letter-spacing: 0.1px;
+    letter-spacing: -0.08px;
   }
   
   .md-body-large {
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5rem;
-    letter-spacing: 0.5px;
+    letter-spacing: -0.24px;
   }
   
   .md-body-medium {
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.25rem;
-    letter-spacing: 0.25px;
+    letter-spacing: -0.08px;
   }
   
   .md-body-small {
     font-size: 0.75rem;
     font-weight: 400;
     line-height: 1rem;
-    letter-spacing: 0.4px;
+    letter-spacing: 0;
   }
   
   .md-label-large {
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.25rem;
-    letter-spacing: 0.1px;
+    letter-spacing: -0.08px;
   }
   
   .md-label-medium {
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1rem;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
   }
   
   .md-label-small {
     font-size: 0.6875rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 0.875rem;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.07px;
   }
   
-  /* Material Design Elevation */
-  .md-elevation-0 {
-    box-shadow: var(--md-elevation-0);
+  /* iOS Blur Effects */
+  .ios-blur-light {
+    backdrop-filter: var(--ios-blur-light);
+    -webkit-backdrop-filter: var(--ios-blur-light);
+    background-color: rgba(255, 255, 255, 0.7);
   }
   
-  .md-elevation-1 {
-    box-shadow: var(--md-elevation-1);
+  .ios-blur-medium {
+    backdrop-filter: var(--ios-blur-medium);
+    -webkit-backdrop-filter: var(--ios-blur-medium);
+    background-color: rgba(255, 255, 255, 0.8);
   }
   
-  .md-elevation-2 {
-    box-shadow: var(--md-elevation-2);
+  .ios-blur-heavy {
+    backdrop-filter: var(--ios-blur-heavy);
+    -webkit-backdrop-filter: var(--ios-blur-heavy);
+    background-color: rgba(255, 255, 255, 0.9);
   }
   
-  .md-elevation-3 {
-    box-shadow: var(--md-elevation-3);
-  }
-  
-  .md-elevation-4 {
-    box-shadow: var(--md-elevation-4);
-  }
-  
-  .md-elevation-5 {
-    box-shadow: var(--md-elevation-5);
-  }
-  
-  .md-elevation-8 {
-    box-shadow: var(--md-elevation-8);
-  }
-  
-  .md-elevation-12 {
-    box-shadow: var(--md-elevation-12);
-  }
-  
-  .md-elevation-16 {
-    box-shadow: var(--md-elevation-16);
-  }
-  
-  .md-elevation-24 {
-    box-shadow: var(--md-elevation-24);
-  }
-  
-  /* Material Design Surface */
-  .md-surface {
-    background-color: var(--md-surface);
-    color: var(--md-on-surface);
-  }
-  
-  .md-surface-variant {
-    background-color: var(--md-surface-variant);
-    color: var(--md-on-surface-variant);
-  }
-  
-  /* Material Design Cards */
-  .md-card {
-    background-color: var(--md-surface);
-    border-radius: 12px;
+  /* iOS Cards */
+  .ios-card {
+    background-color: #1c1c1e;
+    border-radius: 10px;
     padding: 16px;
-    box-shadow: var(--md-elevation-1);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    box-shadow: var(--ios-shadow-sm);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #38383a;
   }
   
-  .md-card:hover {
-    box-shadow: var(--md-elevation-2);
+  .ios-card:hover {
+    box-shadow: var(--ios-shadow-md);
+    transform: translateY(-1px);
+    background-color: #2c2c2e;
   }
   
-  .md-card-elevated {
-    box-shadow: var(--md-elevation-2);
-  }
-  
-  .md-card-elevated:hover {
-    box-shadow: var(--md-elevation-4);
-  }
-  
-  /* Material Design Buttons */
-  .md-button {
-    border-radius: 20px;
-    padding: 10px 24px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.1px;
-    transition: all 0.2s ease;
+  /* iOS Buttons */
+  .ios-button {
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 17px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
   
-  .md-button-filled {
-    background-color: var(--md-primary);
-    color: var(--md-on-primary);
-    box-shadow: var(--md-elevation-1);
+  .ios-button-filled {
+    background-color: var(--ios-blue);
+    color: white;
   }
   
-  .md-button-filled:hover {
-    box-shadow: var(--md-elevation-2);
-    background-color: var(--md-primary);
-    opacity: 0.92;
+  .ios-button-filled:hover {
+    background-color: #0051D5;
+    transform: scale(0.98);
   }
   
-  .md-button-outlined {
+  .ios-button-filled:active {
+    transform: scale(0.96);
+    opacity: 0.8;
+  }
+  
+  .ios-button-outlined {
     background-color: transparent;
-    color: var(--md-primary);
-    border: 1px solid var(--md-outline);
+    color: var(--ios-blue);
+    border: 1px solid var(--ios-separator);
   }
   
-  .md-button-text {
+  .ios-button-text {
     background-color: transparent;
-    color: var(--md-primary);
-    padding: 10px 12px;
+    color: var(--ios-blue);
+    padding: 8px 12px;
   }
   
-  /* Ripple effect */
-  .md-ripple {
-    position: relative;
-    overflow: hidden;
+  /* iOS List Items */
+  .ios-list-item {
+    background-color: #1c1c1e;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    border: 1px solid #38383a;
   }
   
-  .md-ripple::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    width: 100px;
-    height: 100px;
-    margin-top: -50px;
-    margin-left: -50px;
-    top: 50%;
-    left: 50%;
-    transform: scale(0);
-    animation: ripple 0.6s;
-    pointer-events: none;
+  .ios-list-item:hover {
+    background-color: #2c2c2e;
   }
   
-  @keyframes ripple {
-    to {
-      transform: scale(4);
+  .ios-list-item:active {
+    background-color: #38383a;
+    transform: scale(0.98);
+  }
+  
+  /* Material Design Elevation (for compatibility) */
+  .md-elevation-0 {
+    box-shadow: none;
+  }
+  
+  .md-elevation-1 {
+    box-shadow: var(--ios-shadow-sm);
+  }
+  
+  .md-elevation-2 {
+    box-shadow: var(--ios-shadow-md);
+  }
+  
+  .md-elevation-3 {
+    box-shadow: var(--ios-shadow-lg);
+  }
+  
+  .md-elevation-4 {
+    box-shadow: var(--ios-shadow-xl);
+  }
+  
+  .md-elevation-5 {
+    box-shadow: var(--ios-shadow-xl);
+  }
+  
+  .md-elevation-8 {
+    box-shadow: var(--ios-shadow-xl);
+  }
+  
+  .md-elevation-12 {
+    box-shadow: var(--ios-shadow-xl);
+  }
+  
+  .md-elevation-16 {
+    box-shadow: var(--ios-shadow-xl);
+  }
+  
+  .md-elevation-24 {
+    box-shadow: var(--ios-shadow-xl);
+  }
+  
+  /* Material Design Surface (for compatibility) */
+  .md-surface {
+    background-color: var(--ios-system-background);
+    color: var(--ios-label);
+  }
+  
+  .md-surface-variant {
+    background-color: var(--ios-secondary-system-background);
+    color: var(--ios-secondary-label);
+  }
+  
+  /* Custom scrollbar (iOS style) */
+  .md-scrollbar::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
+  
+  .md-scrollbar {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* iOS-style animations */
+  @keyframes ios-fade-in {
+    from {
       opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
   
-  /* Custom scrollbar */
-  .md-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  @keyframes ios-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
   
-  .md-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+  .ios-fade-in {
+    animation: ios-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .md-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--md-outline-variant);
-    border-radius: 4px;
-  }
-  
-  .md-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: var(--md-outline);
+  .ios-scale-in {
+    animation: ios-scale-in 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
