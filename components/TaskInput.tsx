@@ -26,6 +26,13 @@ export default function TaskInput({ onTaskCreated, boardId }: TaskInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  
+  // Expose setInput for testing (only in development/test)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+      (window as any).__taskInputSetInput = setInput;
+    }
+  }, []);
 
   const debouncedInput = useDebounce(input, 300);
 
