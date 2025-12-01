@@ -16,6 +16,8 @@ interface TaskListProps {
   onTaskUpdated: (task: any) => void;
   onTaskDeleted: (taskId: string) => void;
   canEdit?: boolean;
+  onTaskDragStart?: (taskId: string) => void;
+  onTaskDragEnd?: () => void;
 }
 
 export default function TaskList({
@@ -23,6 +25,8 @@ export default function TaskList({
   onTaskUpdated,
   onTaskDeleted,
   canEdit = true,
+  onTaskDragStart,
+  onTaskDragEnd,
 }: TaskListProps) {
   const handleToggleComplete = async (task: any) => {
     const newStatus =
@@ -90,7 +94,33 @@ export default function TaskList({
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
               key={task._id}
-              className="bg-[var(--md-surface)] transition-all cursor-pointer hover:md-elevation-2"
+              draggable={canEdit}
+              onDragStart={(e: any) => {
+                const dragEvent = e as DragEvent;
+                if (onTaskDragStart) {
+                  onTaskDragStart(task._id);
+                }
+                if (dragEvent.dataTransfer) {
+                  dragEvent.dataTransfer.effectAllowed = "move";
+                  dragEvent.dataTransfer.setData("text/plain", task._id);
+                }
+                // Add visual feedback
+                const target = e.currentTarget as HTMLElement;
+                if (target) {
+                  target.style.opacity = "0.5";
+                }
+              }}
+              onDragEnd={(e: any) => {
+                if (onTaskDragEnd) {
+                  onTaskDragEnd();
+                }
+                // Reset visual feedback
+                const target = e.currentTarget as HTMLElement;
+                if (target) {
+                  target.style.opacity = "1";
+                }
+              }}
+              className="bg-[var(--md-surface)] transition-all cursor-move hover:md-elevation-2"
               style={{
                 borderRadius: "12px",
                 border: "1px solid var(--md-outline-variant)",

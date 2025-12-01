@@ -56,46 +56,30 @@ export default function SemanticHighlighter({ text, className = '' }: SemanticHi
       });
     }
 
-    // Date patterns
-    try {
-      const doc = nlp(text);
-      const dates = (doc as any).dates();
-      dates.forEach((date: any) => {
-        const dateText = date.text();
-        const match = text.indexOf(dateText);
-        if (match !== -1) {
-          highlights.push({
-            start: match,
-            end: match + dateText.length,
-            type: 'date',
-            text: dateText,
-            value: dateText,
-          });
-        }
-      });
-    } catch (e) {
-      // Fallback: simple date patterns
-      const datePatterns = [
-        /\b(today|tomorrow|yesterday)\b/gi,
-        /\b(next|this)\s+(week|month|year|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,
-        /\b(in|after)\s+\d+\s+(days?|weeks?|months?|years?)\b/gi,
-        /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g,
-        /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}\b/gi,
-      ];
+    // Date patterns - use regex since compromise doesn't have dates() method
+    const datePatterns = [
+      /\b(today|tomorrow|yesterday)\b/gi,
+      /\b(next|this)\s+(week|month|year|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,
+      /\b(in|after|on|by|due|deadline)\s+\d+\s+(days?|weeks?|months?|years?)\b/gi,
+      /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,
+      /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g,
+      /\b\d{4}-\d{2}-\d{2}\b/g,
+      /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}(st|nd|rd|th)?\b/gi,
+      /\b\d{1,2}(st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december)\b/gi,
+    ];
 
-      datePatterns.forEach((pattern) => {
-        let match;
-        while ((match = pattern.exec(text)) !== null) {
-          highlights.push({
-            start: match.index,
-            end: match.index + match[0].length,
-            type: 'date',
-            text: match[0],
-            value: match[0],
-          });
-        }
-      });
-    }
+    datePatterns.forEach((pattern) => {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        highlights.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          type: 'date',
+          text: match[0],
+          value: match[0],
+        });
+      }
+    });
 
     // Recurring patterns
     const recurringPatterns = [

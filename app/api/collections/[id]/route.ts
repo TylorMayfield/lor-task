@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/api/getSession';
-import { connectDB } from '@/lib/mongodb';
+import connectDB from '@/lib/mongodb';
 import Collection from '@/lib/models/Collection';
 
 export async function GET(
@@ -44,7 +44,7 @@ export async function PATCH(
     await connectDB();
 
     const body = await request.json();
-    const { name, description, color, icon, filterCriteria, order } = body;
+    const { name, description, color, icon, filterCriteria, order, parentId } = body;
 
     const collection = await Collection.findOneAndUpdate(
       { _id: params.id, userId: session.user.id },
@@ -55,6 +55,7 @@ export async function PATCH(
         ...(icon !== undefined && { icon }),
         ...(filterCriteria !== undefined && { filterCriteria }),
         ...(order !== undefined && { order }),
+        ...(parentId !== undefined && { parentId: parentId || null }),
       },
       { new: true }
     ).lean();

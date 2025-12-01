@@ -15,6 +15,7 @@ export interface ICollection extends Document {
     hasDueDate?: boolean;
     isRecurring?: boolean;
   };
+  parentId?: mongoose.Types.ObjectId;
   order: number;
   createdAt: Date;
   updatedAt: Date;
@@ -56,6 +57,10 @@ const CollectionSchema: Schema = new Schema(
       hasDueDate: Boolean,
       isRecurring: Boolean,
     },
+    parentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Collection',
+    },
     order: {
       type: Number,
       default: 0,
@@ -68,9 +73,15 @@ const CollectionSchema: Schema = new Schema(
 
 CollectionSchema.index({ userId: 1 });
 CollectionSchema.index({ userId: 1, order: 1 });
+CollectionSchema.index({ userId: 1, parentId: 1 });
+CollectionSchema.index({ parentId: 1 });
 
-const Collection: Model<ICollection> =
-  mongoose.models?.Collection || mongoose.model<ICollection>('Collection', CollectionSchema);
+// Clear cached model if it exists to ensure schema changes are picked up
+if (mongoose.models?.Collection) {
+  delete mongoose.models.Collection;
+}
+
+const Collection: Model<ICollection> = mongoose.model<ICollection>('Collection', CollectionSchema);
 
 export default Collection;
 

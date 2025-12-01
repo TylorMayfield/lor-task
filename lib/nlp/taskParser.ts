@@ -41,22 +41,80 @@ export function parseTaskFromNLP(input: string): ParsedTask {
     }
   }
 
-  // Extract dates
-  const dates = (doc as any).dates();
+  // Extract dates - using compromise's match method for date patterns
   let dueDate: Date | undefined;
   let scheduledDate: Date | undefined;
-
-  dates.forEach((date: any) => {
-    const dateStr = date.text();
-    const parsedDate = new Date(dateStr);
-    if (!isNaN(parsedDate.getTime())) {
-      if (lowerInput.includes('due') || lowerInput.includes('deadline')) {
-        dueDate = parsedDate;
-      } else {
-        scheduledDate = parsedDate;
+  
+  // Try to extract dates using compromise's match patterns
+  try {
+    const dateMatches = doc.match('#Date+').out('array');
+    const dateTexts: string[] = [];
+    
+    // Also try to find date-like patterns manually
+    const datePatterns = [
+      /\b(today|tomorrow|yesterday)\b/gi,
+      /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,
+      /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}\b/gi,
+      /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g,
+      /\b\d{4}-\d{2}-\d{2}\b/g,
+      /\b(in|on|by|due|deadline)\s+(\d{1,2}\s+)?(days?|weeks?|months?|years?)\b/gi,
+    ];
+    
+    datePatterns.forEach((pattern) => {
+      const matches = input.match(pattern);
+      if (matches) {
+        dateTexts.push(...matches);
       }
+    });
+    
+    // Parse date strings
+    dateTexts.forEach((dateStr) => {
+      try {
+        // Handle relative dates
+        const lowerDateStr = dateStr.toLowerCase();
+        let parsedDate: Date | null = null;
+        
+        if (lowerDateStr.includes('today')) {
+          parsedDate = new Date();
+        } else if (lowerDateStr.includes('tomorrow')) {
+          parsedDate = new Date();
+          parsedDate.setDate(parsedDate.getDate() + 1);
+        } else if (lowerDateStr.includes('yesterday')) {
+          parsedDate = new Date();
+          parsedDate.setDate(parsedDate.getDate() - 1);
+        } else {
+          parsedDate = new Date(dateStr);
+        }
+        
+        if (parsedDate && !isNaN(parsedDate.getTime())) {
+          if (lowerInput.includes('due') || lowerInput.includes('deadline') || lowerInput.includes('by')) {
+            dueDate = parsedDate;
+          } else {
+            scheduledDate = parsedDate;
+          }
+        }
+      } catch (err) {
+        // Ignore date parsing errors
+      }
+    });
+  } catch (err) {
+    // Fallback: try simple date parsing
+    try {
+      const simpleDateMatch = input.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b/);
+      if (simpleDateMatch) {
+        const parsedDate = new Date(simpleDateMatch[0]);
+        if (!isNaN(parsedDate.getTime())) {
+          if (lowerInput.includes('due') || lowerInput.includes('deadline')) {
+            dueDate = parsedDate;
+          } else {
+            scheduledDate = parsedDate;
+          }
+        }
+      }
+    } catch (fallbackErr) {
+      // Ignore
     }
-  });
+  }
 
   // Extract recurring pattern
   let isRecurring = false;
@@ -92,8 +150,18 @@ export function parseTaskFromNLP(input: string): ParsedTask {
 
   // Clean up the title (remove date/time mentions, priority words)
   let title = input;
-  dates.forEach((date: any) => {
-    title = title.replace(date.text(), '').trim();
+  
+  // Remove date patterns from title
+  const datePatternsToRemove = [
+    /\b(today|tomorrow|yesterday)\b/gi,
+    /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,
+    /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}\b/gi,
+    /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g,
+    /\b\d{4}-\d{2}-\d{2}\b/g,
+  ];
+  
+  datePatternsToRemove.forEach((pattern) => {
+    title = title.replace(pattern, '').trim();
   });
   
   priorityKeywords.urgent.concat(priorityKeywords.high, priorityKeywords.low).forEach((keyword) => {

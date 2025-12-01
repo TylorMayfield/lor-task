@@ -25,6 +25,7 @@ export interface ITask extends Document {
   tags: mongoose.Types.ObjectId[];
   categoryId?: mongoose.Types.ObjectId;
   boardId?: mongoose.Types.ObjectId;
+  collectionId?: mongoose.Types.ObjectId;
   isInbox: boolean;
   isRecurring: boolean;
   recurringPattern?: {
@@ -86,6 +87,10 @@ const TaskSchema: Schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Board',
     },
+    collectionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Collection',
+    },
     isInbox: {
       type: Boolean,
       default: false,
@@ -124,6 +129,7 @@ TaskSchema.index({ userId: 1, scheduledDate: 1 });
 TaskSchema.index({ userId: 1, dueDate: 1 });
 TaskSchema.index({ boardId: 1 });
 TaskSchema.index({ boardId: 1, status: 1 });
+TaskSchema.index({ collectionId: 1 });
 TaskSchema.index({ userId: 1, isInbox: 1 });
 TaskSchema.index({ userId: 1, isInbox: 1, status: 1 });
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/api/getSession';
-import { connectDB } from '@/lib/mongodb';
+import connectDB from '@/lib/mongodb';
 import Collection from '@/lib/models/Collection';
 
 export async function GET(request: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
-    const { name, description, color, icon, filterCriteria } = body;
+    const { name, description, color, icon, filterCriteria, parentId } = body;
 
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Collection name is required' }, { status: 400 });
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       color: color || '#3B82F6',
       icon: icon || 'Folder',
       filterCriteria: filterCriteria || {},
+      parentId: parentId || undefined,
       order,
     });
 

@@ -1,7 +1,6 @@
-
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import Dashboard from '@/components/Dashboard';
 import LandingPage from '@/components/LandingPage';
 
 export default async function Home() {
@@ -11,6 +10,6 @@ export default async function Home() {
     return <LandingPage />;
   }
 
-  return <Dashboard />;
+  redirect('/dashboard/today');
 }
 
