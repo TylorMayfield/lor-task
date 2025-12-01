@@ -2,7 +2,14 @@
 
 import { format } from "date-fns";
 import { TaskPriority, TaskStatus } from "@/lib/models/Task";
-import { FileText, Repeat, Inbox as InboxIcon } from "lucide-react";
+import {
+  FileText,
+  Repeat,
+  Tag as TagIcon,
+  Calendar,
+  Check,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TaskListProps {
   tasks: any[];
@@ -22,63 +29,43 @@ export default function TaskList({
       task.status === TaskStatus.COMPLETED
         ? TaskStatus.TODO
         : TaskStatus.COMPLETED;
-
     try {
       const res = await fetch(`/api/tasks/${task._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-
       if (!res.ok) throw new Error("Failed to update task");
-
-      const data = await res.json();
-      onTaskUpdated(data.task);
+      const updatedTask = await res.json();
+      onTaskUpdated(updatedTask.task);
     } catch (error) {
-      console.error("Failed to update task:", error);
-    }
-  };
-
-  const handleDelete = async (taskId: string) => {
-    if (!confirm("Are you sure you want to delete this task?")) return;
-
-    try {
-      const res = await fetch(`/api/tasks/${taskId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) throw new Error("Failed to delete task");
-
-      onTaskDeleted(taskId);
-    } catch (error) {
-      console.error("Failed to delete task:", error);
+      console.error("Failed to toggle task status:", error);
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case TaskPriority.URGENT:
-        return "bg-red-50 text-red-700 border-red-200";
+        return "bg-[var(--md-error-container)] text-[var(--md-on-error-container)]";
       case TaskPriority.HIGH:
-        return "bg-orange-50 text-orange-700 border-orange-200";
+        return "bg-amber-50 text-amber-700 border border-amber-200";
       case TaskPriority.MEDIUM:
-        return "bg-yellow-50 text-yellow-700 border-yellow-200";
+        return "bg-blue-50 text-blue-700 border border-blue-200";
       case TaskPriority.LOW:
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-emerald-50 text-emerald-700 border border-emerald-200";
       default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+        return "bg-[var(--md-surface-variant)] text-[var(--md-on-surface-variant)]";
     }
   };
 
   if (tasks.length === 0) {
     return (
-      <div
-        className="bg-white border border-gray-200 p-12 text-center shadow-sm"
-        style={{ borderRadius: "12px" }}
-      >
-        <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-        <p className="text-lg font-medium text-gray-900 mb-2">No tasks yet</p>
-        <p className="text-sm text-gray-500">
+      <div className="text-center py-16">
+        <FileText className="w-16 h-16 mx-auto mb-4 text-[var(--md-on-surface-variant)] opacity-40" />
+        <p className="md-title-medium text-[var(--md-on-surface)] mb-2">
+          No tasks yet
+        </p>
+        <p className="md-body-medium text-[var(--md-on-surface-variant)]">
           Create your first task above to get started!
         </p>
       </div>
@@ -86,195 +73,132 @@ export default function TaskList({
   }
 
   return (
-    <div className="space-y-3">
-      <ul className="space-y-3 list-none">
-        {tasks.map((task) => (
-          <li key={task._id} className="task-card">
-            <div className="flex items-start space-x-3">
-              <button
-                onClick={() => handleToggleComplete(task)}
-                disabled={!canEdit}
-                className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                  task.status === TaskStatus.COMPLETED
-                    ? "border-transparent"
-                    : "border-gray-300"
-                } ${
-                  !canEdit ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                }`}
-                style={
-                  task.status === TaskStatus.COMPLETED
-                    ? {
-                        backgroundColor: "var(--primary-color)",
-                        borderColor: "var(--primary-color)",
-                      }
-                    : {}
-                }
-                onMouseEnter={(e) => {
-                  if (!canEdit || task.status === TaskStatus.COMPLETED) return;
-                  e.currentTarget.style.borderColor = "var(--primary-color)";
-                }}
-                onMouseLeave={(e) => {
-                  if (!canEdit || task.status === TaskStatus.COMPLETED) return;
-                  e.currentTarget.style.borderColor = "";
-                }}
-              >
-                {task.status === TaskStatus.COMPLETED && (
-                  <svg
-                    className="w-3 h-3 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={3}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                )}
-              </button>
+    <div className="space-y-2">
+      <AnimatePresence mode="popLayout">
+        {tasks.map((task) => {
+          const tags = Array.isArray(task.tags)
+            ? task.tags.filter(
+                (t: any) => t && (typeof t === "object" ? t.name : t)
+              )
+            : [];
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3
-                      className={`text-base font-medium ${
-                        task.status === TaskStatus.COMPLETED
-                          ? "line-through text-gray-400"
-                          : "text-gray-900"
-                      }`}
-                    >
-                      {task.title}
-                    </h3>
-                    {task.description && (
-                      <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                        {task.description}
-                      </p>
+          return (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              key={task._id}
+              className="bg-[var(--md-surface)] transition-all cursor-pointer hover:md-elevation-2"
+              style={{
+                borderRadius: "12px",
+                border: "1px solid var(--md-outline-variant)",
+                padding: "14px",
+                marginBottom: "8px",
+              }}
+            >
+              <div className="flex items-start gap-3">
+                {/* Checkbox */}
+                <button
+                  onClick={() => handleToggleComplete(task)}
+                  disabled={!canEdit}
+                  className={`w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all mt-0.5 ${
+                    task.status === TaskStatus.COMPLETED
+                      ? "bg-[var(--md-primary)] border-[var(--md-primary)]"
+                      : "border-[var(--md-outline-variant)] hover:border-[var(--md-primary)]"
+                  } ${
+                    !canEdit
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  style={{ borderRadius: "12px" }}
+                >
+                  {task.status === TaskStatus.COMPLETED && (
+                    <Check className="w-4 h-4 text-[var(--md-on-primary)]" />
+                  )}
+                </button>
+
+                {/* Task Content */}
+                <div className="flex-1 min-w-0">
+                  <h3
+                    className={`md-title-medium mb-2 ${
+                      task.status === TaskStatus.COMPLETED
+                        ? "line-through text-[var(--md-on-surface-variant)]"
+                        : "text-[var(--md-on-surface)]"
+                    }`}
+                  >
+                    {task.title}
+                  </h3>
+
+                  {task.description && (
+                    <p className="md-body-medium text-[var(--md-on-surface-variant)] mb-3 line-clamp-2">
+                      {task.description}
+                    </p>
+                  )}
+
+                  {/* Tags */}
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {tags.map((tag: any, idx: number) => {
+                        const tagName =
+                          typeof tag === "object" ? tag.name : tag;
+                        const tagId = typeof tag === "object" ? tag._id : idx;
+                        return (
+                          <div
+                            key={tagId}
+                            className="flex items-center gap-1 px-2 py-1 bg-[var(--md-secondary-container)] text-[var(--md-on-secondary-container)] rounded-full md-label-small"
+                            style={{ borderRadius: "8px" }}
+                          >
+                            <TagIcon className="w-3 h-3" />
+                            {tagName}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Metadata Row */}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {task.dueDate && (
+                      <div className="flex items-center gap-1 md-body-small text-[var(--md-on-surface-variant)]">
+                        <Calendar className="w-4 h-4" />
+                        {format(new Date(task.dueDate), "MMM d")}
+                      </div>
+                    )}
+
+                    {task.scheduledDate && (
+                      <div className="flex items-center gap-1 md-body-small text-[var(--md-on-surface-variant)]">
+                        <Calendar className="w-4 h-4" />
+                        Scheduled:{" "}
+                        {format(new Date(task.scheduledDate), "MMM d")}
+                      </div>
+                    )}
+
+                    {task.priority && task.priority !== TaskPriority.MEDIUM && (
+                      <div
+                        className={`px-2 py-1 rounded-full md-label-small ${getPriorityColor(
+                          task.priority
+                        )}`}
+                        style={{ borderRadius: "8px" }}
+                      >
+                        {task.priority}
+                      </div>
+                    )}
+
+                    {task.isRecurring && (
+                      <div className="flex items-center gap-1 md-body-small text-[var(--md-on-surface-variant)]">
+                        <Repeat className="w-4 h-4" />
+                        Recurring
+                      </div>
                     )}
                   </div>
-                  {canEdit && (
-                    <button
-                      onClick={() => handleDelete(task._id)}
-                      className="ml-3 text-gray-400 hover:text-red-500 transition-colors p-1"
-                      title="Delete task"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {task.dueDate && (
-                    <div className="flex items-center text-xs text-gray-500">
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      {format(new Date(task.dueDate), "MMM d")}
-                    </div>
-                  )}
-                  {task.scheduledDate && !task.dueDate && (
-                    <div className="flex items-center text-xs text-gray-500">
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      {format(new Date(task.scheduledDate), "MMM d")}
-                    </div>
-                  )}
-
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getPriorityColor(
-                      task.priority
-                    )}`}
-                  >
-                    {task.priority}
-                  </span>
-
-                  {task.tags?.map((tag: any) => (
-                    <span
-                      key={typeof tag === "string" ? tag : tag._id || tag.name}
-                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
-                    >
-                      {typeof tag === "string" ? tag : tag.name || tag._id}
-                    </span>
-                  ))}
-
-                  {task.categoryId && typeof task.categoryId === "object" && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                      {task.categoryId.name}
-                    </span>
-                  )}
-
-                  {task.boardId && typeof task.boardId === "object" && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
-                      {task.boardId.name}
-                    </span>
-                  )}
-
-                  {task.isRecurring && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                      <Repeat className="w-3 h-3 mr-1" />
-                      Recurring
-                    </span>
-                  )}
-
-                  {task.isInbox && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
-                      <InboxIcon className="w-3 h-3 mr-1" />
-                      Inbox
-                    </span>
-                  )}
-
-                  {/* Show project path if board or category exists */}
-                  {(task.boardId || task.categoryId) && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-50 text-gray-700 border border-gray-200">
-                      {task.boardId &&
-                        typeof task.boardId === "object" &&
-                        task.boardId.name}
-                      {task.boardId && task.categoryId && " > "}
-                      {task.categoryId &&
-                        typeof task.categoryId === "object" &&
-                        task.categoryId.name}
-                    </span>
-                  )}
                 </div>
               </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 }

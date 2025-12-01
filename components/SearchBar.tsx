@@ -10,6 +10,7 @@ interface SearchBarProps {
 
 export default function SearchBar({ onSearch, placeholder = 'Search tasks...' }: SearchBarProps) {
   const [query, setQuery] = useState('');
+  const [focused, setFocused] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +23,16 @@ export default function SearchBar({ onSearch, placeholder = 'Search tasks...' }:
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative w-full max-w-md">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+    <form onSubmit={handleSubmit} className="relative">
+      <div
+        className={`flex items-center gap-2 px-3 py-2 bg-[var(--md-surface-variant)] border rounded-full transition-all ${
+          focused
+            ? 'border-[var(--md-primary)] md-elevation-1'
+            : 'border-transparent'
+        }`}
+        style={{ borderRadius: '20px' }}
+      >
+        <Search className="w-4 h-4 text-[var(--md-on-surface-variant)]" />
         <input
           type="text"
           value={query}
@@ -32,28 +40,22 @@ export default function SearchBar({ onSearch, placeholder = 'Search tasks...' }:
             setQuery(e.target.value);
             onSearch(e.target.value);
           }}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition-all"
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = 'var(--primary-color)';
-            e.currentTarget.style.boxShadow = `0 0 0 2px var(--primary-color-light)`;
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = '';
-            e.currentTarget.style.boxShadow = '';
-          }}
+          className="flex-1 bg-transparent border-0 text-[var(--md-on-surface)] placeholder:text-[var(--md-on-surface-variant)] focus:outline-none md-body-medium"
+          style={{ caretColor: 'var(--md-primary)' }}
         />
         {query && (
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="p-1 text-[var(--md-on-surface-variant)] hover:text-[var(--md-on-surface)] transition-colors rounded-full hover:bg-[var(--md-surface)]"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         )}
       </div>
     </form>
   );
 }
-

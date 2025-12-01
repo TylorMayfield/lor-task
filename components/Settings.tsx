@@ -78,7 +78,8 @@ export default function Settings() {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+    <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-lg"
+         style={{ borderRadius: '16px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Settings & Preferences</h2>
 
       <div className="space-y-6">
@@ -303,9 +304,10 @@ export default function Settings() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full text-white py-2.5 px-4 rounded-lg disabled:opacity-50 font-medium transition-colors"
+          className="w-full text-white py-3 px-6 disabled:opacity-50 font-medium transition-all shadow-sm hover:shadow-md"
           style={{
             backgroundColor: 'var(--primary-color)',
+            borderRadius: '9999px',
           }}
           onMouseEnter={(e) => {
             if (!e.currentTarget.disabled) {

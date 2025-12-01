@@ -64,7 +64,7 @@ export const authOptions: NextAuthOptions = {
           await User.create({
             email: user.email!,
             name: user.name || profile?.name || '',
-            image: user.image || profile?.picture,
+            image: user.image || (profile as any)?.picture,
           });
         } else if (user.image && !existingUser.image) {
           existingUser.image = user.image;

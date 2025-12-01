@@ -42,7 +42,7 @@ export function parseTaskFromNLP(input: string): ParsedTask {
   }
 
   // Extract dates
-  const dates = doc.dates();
+  const dates = (doc as any).dates();
   let dueDate: Date | undefined;
   let scheduledDate: Date | undefined;
 

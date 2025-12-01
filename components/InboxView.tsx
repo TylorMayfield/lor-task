@@ -133,16 +133,23 @@ export default function InboxView({
                     <p className="mt-1 text-sm text-gray-600">{task.description}</p>
                   )}
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {task.tags?.map((tag: any) => (
-                      <span
-                        key={typeof tag === 'string' ? tag : tag._id || tag.name}
-                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
-                      >
-                        {typeof tag === 'string' ? tag : tag.name || tag._id}
-                      </span>
-                    ))}
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
-                      <Inbox className="w-3 h-3 mr-1" />
+                    {task.tags?.map((tag: any) => {
+                      const tagName = typeof tag === 'string' ? tag : tag.name || tag._id;
+                      return (
+                        <span
+                          key={typeof tag === 'string' ? tag : tag._id || tag.name}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700"
+                          style={{ borderRadius: '9999px' }}
+                        >
+                          {tagName}
+                        </span>
+                      );
+                    })}
+                    <span 
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700"
+                      style={{ borderRadius: '9999px' }}
+                    >
+                      <Inbox className="w-3 h-3" />
                       Inbox
                     </span>
                     <span className="text-xs text-gray-500">
@@ -157,7 +164,8 @@ export default function InboxView({
                       setShowSchedulePicker(true);
                       setShowCategorySelector(false);
                     }}
-                    className="px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                    style={{ borderRadius: '9999px' }}
                   >
                     Schedule
                   </button>
@@ -167,7 +175,8 @@ export default function InboxView({
                       setShowCategorySelector(true);
                       setShowSchedulePicker(false);
                     }}
-                    className="px-3 py-1.5 text-xs font-medium bg-green-50 text-green-700 rounded-lg hover:bg-green-100 border border-green-200 transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                    style={{ borderRadius: '9999px' }}
                   >
                     Categorize
                   </button>
@@ -190,7 +199,8 @@ export default function InboxView({
       {/* Category Selector Modal */}
       {showCategorySelector && selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl"
+               style={{ borderRadius: '16px', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)' }}>
             <h3 className="text-lg font-semibold mb-4">Select Category</h3>
             <CategoryTree
               selectedCategoryId={undefined}
@@ -218,7 +228,8 @@ export default function InboxView({
       {/* Schedule Picker Modal */}
       {showSchedulePicker && selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl"
+               style={{ borderRadius: '16px', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)' }}>
             <h3 className="text-lg font-semibold mb-4">Schedule Task</h3>
             <div className="space-y-4">
               <div>

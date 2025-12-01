@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       {
         ...parsedTask,
         priority: parsedTask.priority || TaskPriority.MEDIUM,
-      },
+      } as any,
       { existingTasks: [] }
     );
 

@@ -60,7 +60,7 @@ export async function fireWebhooks(
   const payloadString = JSON.stringify(payload);
 
   // Fire webhooks in parallel (don't await to avoid blocking)
-  webhooks.forEach(async (webhook: IWebhook) => {
+  webhooks.forEach(async (webhook: any) => {
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',

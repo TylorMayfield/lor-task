@@ -16,9 +16,9 @@ export async function GET() {
 
     if (!preferences) {
       // Create default preferences
-      preferences = await UserPreferences.create({
+      preferences = (await UserPreferences.create({
         userId: session.user.id,
-      });
+      })).toObject() as any;
     }
 
     return NextResponse.json({ preferences });

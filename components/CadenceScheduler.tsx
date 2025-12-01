@@ -150,7 +150,7 @@ export default function CadenceScheduler({
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Cadence (e.g., "first monday", "last friday")
+              Cadence (e.g., &quot;first monday&quot;, &quot;last friday&quot;)
             </label>
             <input
               type="text"

@@ -9,13 +9,15 @@ import CalendarView from './CalendarView';
 import InboxView from './InboxView';
 import Settings from './Settings';
 import Webhooks from './Webhooks';
+import { Inbox, Calendar, CalendarDays, CheckSquare2, Users } from 'lucide-react';
 import Boards from './Boards';
 import Sidebar from './Sidebar';
 import KanbanBoard from './KanbanBoard';
 import SearchBar from './SearchBar';
+import FloatingHeader from './FloatingHeader';
 import TaskFilters from './TaskFilters';
 
-type View = 'inbox' | 'today' | 'upcoming' | 'list' | 'swipe' | 'calendar' | 'settings' | 'webhooks' | 'boards' | 'filters' | 'categories' | 'kanban';
+type View = 'inbox' | 'today' | 'upcoming' | 'list' | 'swipe' | 'calendar' | 'settings' | 'webhooks' | 'boards' | 'filters' | 'categories' | 'kanban' | 'people';
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -24,7 +26,8 @@ export default function Dashboard() {
   const [filteredTasks, setFilteredTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<any>({});
+  const [currentCollection, setCurrentCollection] = useState<any>(null);
   const [taskCounts, setTaskCounts] = useState({
     inbox: 0,
     today: 0,
@@ -35,16 +38,38 @@ export default function Dashboard() {
     if (session) {
       fetchTasks();
     }
-  }, [session]);
+  }, [session, searchQuery, activeFilters]);
+
+  // Fetch collection when view is a collection
+  useEffect(() => {
+    if (view.startsWith('collection-')) {
+      const collectionId = view.replace('collection-', '');
+      fetchCollection(collectionId);
+    } else {
+      setCurrentCollection(null);
+    }
+  }, [view]);
 
   const fetchTasks = async () => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/tasks');
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('search', searchQuery);
+      if (activeFilters.status && activeFilters.status.length > 0) params.append('status', activeFilters.status.join(','));
+      if (activeFilters.priority && activeFilters.priority.length > 0) params.append('priority', activeFilters.priority.join(','));
+      if (activeFilters.tags && activeFilters.tags.length > 0) params.append('tagId', activeFilters.tags.join(','));
+      if (activeFilters.boards && activeFilters.boards.length > 0) params.append('boardId', activeFilters.boards.join(','));
+      if (activeFilters.categories && activeFilters.categories.length > 0) params.append('categoryId', activeFilters.categories.join(','));
+      if (activeFilters.hasDueDate !== null) params.append('hasDueDate', activeFilters.hasDueDate.toString());
+      if (activeFilters.isRecurring !== null) params.append('isRecurring', activeFilters.isRecurring.toString());
+      if (activeFilters.isInbox !== null) params.append('inbox', activeFilters.isInbox.toString());
+
+      const res = await fetch(`/api/tasks?${params.toString()}`);
       const data = await res.json();
       const allTasks = data.tasks || [];
       setTasks(allTasks);
+      setFilteredTasks(allTasks);
 
-      // Calculate counts
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const tomorrow = new Date(today);
@@ -73,33 +98,25 @@ export default function Dashboard() {
 
   const handleTaskCreated = (newTask: any) => {
     setTasks([newTask, ...tasks]);
+    setFilteredTasks([newTask, ...filteredTasks]);
   };
 
   const handleTaskUpdated = (updatedTask: any) => {
     setTasks(tasks.map((t) => (t._id === updatedTask._id ? updatedTask : t)));
+    setFilteredTasks(filteredTasks.map((t) => (t._id === updatedTask._id ? updatedTask : t)));
   };
 
   const handleTaskDeleted = (taskId: string) => {
     setTasks(tasks.filter((t) => t._id !== taskId));
+    setFilteredTasks(filteredTasks.filter((t) => t._id !== taskId));
   };
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.trim()) {
-      try {
-        const res = await fetch(`/api/tasks?search=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        setFilteredTasks(data.tasks || []);
-      } catch (error) {
-        console.error('Search failed:', error);
-      }
-    } else {
-      setFilteredTasks([]);
-    }
   };
 
-  const handleFilterChange = (filtered: any[]) => {
-    setFilteredTasks(filtered);
+  const handleFilterChange = (filters: any) => {
+    setActiveFilters(filters);
   };
 
   if (!session) {
@@ -107,17 +124,10 @@ export default function Dashboard() {
   }
 
   const getFilteredTasks = () => {
-    // If search is active, use search results
-    if (searchQuery.trim()) {
+    if (searchQuery || Object.values(activeFilters).some(f => (Array.isArray(f) ? f.length > 0 : f !== null))) {
       return filteredTasks;
     }
 
-    // If filters view is active, use filtered tasks
-    if (view === 'filters' && filteredTasks.length > 0) {
-      return filteredTasks;
-    }
-
-    // Otherwise, apply view-based filtering
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -145,174 +155,132 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-[var(--md-surface)] overflow-hidden">
       <Sidebar
         currentView={view}
-        onViewChange={setView}
+        onViewChange={setView as any}
         taskCounts={taskCounts}
       />
 
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-        {/* Background with gradient and abstract shape */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to bottom right, var(--primary-color-light), white)',
-          }}
-        >
-          {/* Abstract white shape on the right */}
-          <div 
-            className="absolute right-0 top-0 w-1/2 h-full opacity-30"
-            style={{
-              background: 'radial-gradient(ellipse at top right, white 0%, transparent 70%)',
-            }}
-          />
-        </div>
-        <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="text-white px-6 py-4 shadow-sm" style={{ backgroundColor: 'var(--primary-color)' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold capitalize">
-                {view === 'today' ? 'Today' : view === 'upcoming' ? 'Upcoming' : view === 'inbox' ? 'Inbox' : view === 'list' ? 'All Tasks' : view === 'kanban' ? 'People' : view}
+      <main className="flex-1 flex flex-col overflow-hidden bg-[var(--md-surface-variant)]">
+        {/* App Bar - Any.do style */}
+        <div className="bg-[var(--md-surface)] md-elevation-1 px-4 md:px-8 py-4 z-10 border-b border-[var(--md-outline-variant)]">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex items-center gap-4">
+              <h1 className="md-headline-medium text-[var(--md-on-surface)] font-medium">
+                {view === 'today' ? 'My Day' : 
+                 view === 'upcoming' ? 'Next 7 Days' : 
+                 view === 'inbox' ? 'Inbox' : 
+                 view === 'list' ? 'All Tasks' : 
+                 view === 'kanban' || view === 'people' ? 'People' : 
+                 view.charAt(0).toUpperCase() + view.slice(1)}
               </h1>
-              {view === 'today' && (
-                <p className="text-sm opacity-90 mt-1">
-                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                </p>
-              )}
             </div>
-            <div className="flex items-center space-x-2">
-              {showSearch ? (
-                <div className="w-80">
-                  <SearchBar onSearch={handleSearch} />
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowSearch(true)}
-                  className="p-2 rounded-lg transition-colors opacity-90 hover:opacity-100"
-                  style={{ backgroundColor: 'transparent' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                  title="Search tasks"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-              )}
-              {showSearch && (
-                <button
-                  onClick={() => {
-                    setShowSearch(false);
-                    setSearchQuery('');
-                    setFilteredTasks([]);
-                  }}
-                  className="p-2 rounded-lg transition-colors text-white opacity-90 hover:opacity-100"
-                  style={{ backgroundColor: 'transparent' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
+            <div className="flex items-center gap-3">
+              <SearchBar onSearch={handleSearch} />
             </div>
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-hidden relative z-10">
-          {view === 'kanban' ? (
-            <div className="h-full p-4">
+        {/* Content Area - Any.do style with centered content */}
+        <div className="flex-1 overflow-y-auto md-scrollbar">
+          <div className="max-w-4xl mx-auto p-4 md:p-8">
+          {view === 'kanban' || view === 'people' ? (
+            <div className="h-full">
               <KanbanBoard
                 tasks={tasks.filter((t) => t.status !== 'completed')}
                 onTaskUpdated={handleTaskUpdated}
                 onTaskDeleted={handleTaskDeleted}
+                onTaskCreated={handleTaskCreated}
               />
             </div>
           ) : (
-            <div className="flex-1 overflow-y-auto">
-              <div className="max-w-4xl mx-auto p-6 space-y-4">
-            {view === 'inbox' && (
-              <InboxView
-                onTaskUpdated={handleTaskUpdated}
-                onTaskDeleted={handleTaskDeleted}
-              />
-            )}
+            <>
+              {view === 'inbox' && (
+                <InboxView
+                  onTaskUpdated={handleTaskUpdated}
+                  onTaskDeleted={handleTaskDeleted}
+                />
+              )}
 
-            {(view === 'list' || view === 'today' || view === 'upcoming') && (
-              <div>
-                <TaskInput onTaskCreated={handleTaskCreated} />
-                {loading ? (
-                  <div className="mt-8 text-center text-gray-500">Loading tasks...</div>
-                ) : (
-                  <TaskList
-                    tasks={getFilteredTasks()}
-                    onTaskUpdated={handleTaskUpdated}
-                    onTaskDeleted={handleTaskDeleted}
-                  />
-                )}
-              </div>
-            )}
+              {(view === 'list' || view === 'today' || view === 'upcoming') && (
+                <>
+                  {/* Task Input - Any.do style */}
+                  <div className="mb-6">
+                    <TaskInput onTaskCreated={handleTaskCreated} />
+                  </div>
 
-            {view === 'swipe' && (
-              <div>
-                {loading ? (
-                  <div className="mt-8 text-center text-gray-500">Loading tasks...</div>
-                ) : (
-                  <SwipeableTaskView
-                    tasks={tasks.filter((t) => t.status !== 'completed')}
-                    onTaskUpdated={handleTaskUpdated}
-                    onTaskDeleted={handleTaskDeleted}
-                  />
-                )}
-              </div>
-            )}
+                  {/* Task List */}
+                  <div 
+                    className="bg-[var(--md-surface)] p-6 transition-all"
+                    style={{
+                      borderRadius: '12px',
+                      border: '1px solid var(--md-outline-variant)',
+                      boxShadow: 'var(--md-elevation-1)',
+                    }}
+                  >
+                    {loading ? (
+                      <div className="text-center py-12">
+                        <div className="inline-block w-8 h-8 border-4 border-[var(--md-primary-container)] border-t-[var(--md-primary)] rounded-full animate-spin"></div>
+                        <p className="mt-4 md-body-medium text-[var(--md-on-surface-variant)]">Loading tasks...</p>
+                      </div>
+                    ) : (
+                      <TaskList
+                        tasks={getFilteredTasks()}
+                        onTaskUpdated={handleTaskUpdated}
+                        onTaskDeleted={handleTaskDeleted}
+                      />
+                    )}
+                  </div>
+                </>
+              )}
 
-            {view === 'calendar' && (
-              <CalendarView
-                tasks={tasks}
-                onTaskUpdated={handleTaskUpdated}
-                onTaskDeleted={handleTaskDeleted}
-              />
-            )}
+              {view === 'swipe' && (
+                <div>
+                  {loading ? (
+                    <div className="text-center py-12 text-[var(--md-on-surface-variant)]">Loading tasks...</div>
+                  ) : (
+                    <SwipeableTaskView
+                      tasks={tasks.filter((t) => t.status !== 'completed')}
+                      onTaskUpdated={handleTaskUpdated}
+                      onTaskDeleted={handleTaskDeleted}
+                    />
+                  )}
+                </div>
+              )}
 
-            {view === 'settings' && <Settings />}
+              {view === 'calendar' && (
+                <CalendarView
+                  tasks={tasks}
+                  onTaskUpdated={handleTaskUpdated}
+                  onTaskDeleted={handleTaskDeleted}
+                />
+              )}
 
-            {view === 'webhooks' && <Webhooks />}
+              {view === 'settings' && <Settings />}
 
-            {view === 'boards' && <Boards />}
+              {view === 'webhooks' && <Webhooks />}
 
-            {view === 'categories' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Categories</h2>
-                <p className="text-gray-600">Category management coming soon...</p>
-              </div>
-            )}
+              {view === 'boards' && <Boards />}
 
-            {view === 'filters' && (
-              <TaskFilters
-                tasks={tasks}
-                onFilterChange={handleFilterChange}
-              />
-            )}
-              </div>
-            </div>
+              {view === 'categories' && (
+                <div className="md-card-elevated p-6">
+                  <h2 className="md-headline-small text-[var(--md-on-surface)] mb-4">Categories</h2>
+                  <p className="md-body-medium text-[var(--md-on-surface-variant)]">Category management coming soon...</p>
+                </div>
+              )}
+
+              {view === 'filters' && (
+                <TaskFilters
+                  allTasks={tasks}
+                  onFilterChange={handleFilterChange}
+                />
+              )}
+            </>
           )}
-        </div>
+          </div>
         </div>
       </main>
     </div>
   );
 }
-

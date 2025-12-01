@@ -3,7 +3,8 @@
 import { useSession } from 'next-auth/react';
 import { format } from 'date-fns';
 import { TaskStatus } from '@/lib/models/Task';
-import { LayoutGrid } from 'lucide-react';
+import { Paperclip, MessageSquare, Link2, LayoutGrid } from 'lucide-react';
+import TaskInput from './TaskInput';
 
 interface KanbanBoardProps {
   tasks: any[];
@@ -15,7 +16,8 @@ export default function KanbanBoard({
   tasks,
   onTaskUpdated,
   onTaskDeleted,
-}: KanbanBoardProps) {
+  onTaskCreated,
+}: KanbanBoardProps & { onTaskCreated?: (task: any) => void }) {
   const { data: session } = useSession();
 
   // Group tasks by user (for now, we'll use the task owner)
@@ -94,9 +96,9 @@ export default function KanbanBoard({
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-x-auto pb-4">
-        <div className="flex gap-4 h-full min-w-max px-4">
+    <div className="h-full flex flex-col relative z-10">
+      <div className="flex-1 overflow-x-auto custom-scrollbar">
+        <div className="flex gap-6 h-full min-w-max px-8 py-6">
           {userColumns.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
@@ -106,96 +108,59 @@ export default function KanbanBoard({
               </div>
             </div>
           ) : (
-            userColumns.map((column: any) => (
+            userColumns.map((column: any) => {
+              const isMe = column.user.id === currentUserId;
+              return (
               <div
                 key={column.user.id}
-                className="w-80 flex-shrink-0 flex flex-col bg-white rounded-lg border border-gray-200 shadow-sm"
+                className="w-72 flex-shrink-0 flex flex-col"
               >
                 {/* Column Header */}
-                <div className="p-4 border-b border-gray-200 flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-semibold">
+                <div className={`mb-5 ${isMe ? 'text-white' : 'text-white/90'}`}>
+                  <h3 className={`text-sm font-bold mb-3 ${isMe ? 'text-white' : 'text-white/90'}`}>
+                    {column.user.name}
+                  </h3>
+                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-blue-600 text-sm font-semibold shadow-lg">
                     {getInitials(column.user.name)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate">{column.user.name}</h3>
-                    <p className="text-xs text-gray-500">{column.tasks.length} tasks</p>
                   </div>
                 </div>
 
+                {/* Task Input for "Me" Column */}
+                {isMe && onTaskCreated && (
+                  <div className="mb-3">
+                    <TaskInput onTaskCreated={onTaskCreated} />
+                  </div>
+                )}
+
                 {/* Tasks */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
                   {column.tasks.map((task: any) => {
                     const projectPath = getProjectPath(task);
                     return (
                       <div
                         key={task._id}
-                        className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-all cursor-pointer"
+                        className="task-card"
+                        onClick={() => {
+                          // Could open task details modal here
+                        }}
                       >
                         {projectPath && (
                           <div className="text-xs text-gray-500 mb-2 font-medium">
                             {projectPath}
                           </div>
                         )}
-                        <h4 className="text-sm font-medium text-gray-900 mb-2 line-clamp-2">
+                        <h4 className="text-sm font-normal text-gray-900 mb-3 line-clamp-2 leading-snug">
                           {task.title}
                         </h4>
-                        {task.description && (
-                          <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                            {task.description}
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between mt-3">
-                          <div className="flex items-center space-x-2">
-                            {task.dueDate && (
-                              <div className="flex items-center text-xs text-gray-500">
-                                <svg
-                                  className="w-3 h-3 mr-1"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                  />
-                                </svg>
-                                {format(new Date(task.dueDate), 'MMM d')}
-                              </div>
-                            )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2 text-gray-400">
+                            {/* Interaction icons - can be made conditional based on task data */}
+                            <Paperclip className="w-3.5 h-3.5 hover:text-gray-600 cursor-pointer transition-colors" />
+                            <MessageSquare className="w-3.5 h-3.5 hover:text-gray-600 cursor-pointer transition-colors" />
+                            <Link2 className="w-3.5 h-3.5 hover:text-gray-600 cursor-pointer transition-colors" />
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleToggleComplete(task);
-                              }}
-                              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                                task.status === TaskStatus.COMPLETED
-                                  ? 'bg-blue-500 border-blue-500'
-                                  : 'border-gray-300 hover:border-blue-400'
-                              }`}
-                            >
-                              {task.status === TaskStatus.COMPLETED && (
-                                <svg
-                                  className="w-3 h-3 text-white"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={3}
-                                    d="M5 13l4 4L19 7"
-                                  />
-                                </svg>
-                              )}
-                            </button>
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
-                              {getInitials(column.user.name)}
-                            </div>
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 shadow-sm">
+                            {getInitials(column.user.name)}
                           </div>
                         </div>
                       </div>
@@ -203,7 +168,8 @@ export default function KanbanBoard({
                   })}
                 </div>
               </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

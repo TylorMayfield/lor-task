@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { BoardPermission } from './Board';
+export { BoardPermission };
 
 export interface IBoardMember extends Document {
   boardId: mongoose.Types.ObjectId;

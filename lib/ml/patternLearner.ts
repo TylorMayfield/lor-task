@@ -51,15 +51,15 @@ export class PatternLearner {
     // Title similarity (Jaccard similarity on words)
     const words1 = new Set(feature1.title.split(/\s+/));
     const words2 = new Set(feature2.title.split(/\s+/));
-    const intersection = new Set([...words1].filter((x) => words2.has(x)));
-    const union = new Set([...words1, ...words2]);
+    const intersection = new Set(Array.from(words1).filter((x) => words2.has(x)));
+    const union = new Set([...Array.from(words1), ...Array.from(words2)]);
     const titleSimilarity = intersection.size / union.size;
 
     // Tag similarity
     const tags1 = new Set(feature1.tags);
     const tags2 = new Set(feature2.tags);
-    const tagIntersection = new Set([...tags1].filter((x) => tags2.has(x)));
-    const tagUnion = new Set([...tags1, ...tags2]);
+    const tagIntersection = new Set(Array.from(tags1).filter((x) => tags2.has(x)));
+    const tagUnion = new Set([...Array.from(tags1), ...Array.from(tags2)]);
     const tagSimilarity = tagUnion.size > 0 ? tagIntersection.size / tagUnion.size : 0;
 
     // Priority match
@@ -99,10 +99,10 @@ export class PatternLearner {
 
     // Calculate similarities
     const similarities: PatternMatch[] = completedTasks.map((task) => {
-      const taskFeature2 = this.extractFeatures(task as ITask);
+      const taskFeature2 = this.extractFeatures(task as unknown as ITask);
       const similarity = this.calculateSimilarity(taskFeature, taskFeature2);
       return {
-        task: task as ITask,
+        task: task as unknown as ITask,
         similarity,
       };
     });
@@ -128,9 +128,9 @@ export class PatternLearner {
       month: new Date().getMonth(),
     };
 
-    const similarTasks = await this.findSimilarTasks(userId, taskFeature, 10);
+    const similarTasks = await this.findSimilarTasks(userId, taskFeature, 15);
 
-    // Count tag frequencies from similar tasks
+    // Count tag frequencies from similar tasks with weighted similarity
     const tagCounts: Record<string, number> = {};
     similarTasks.forEach((match) => {
       const tags = (match.task.tags as any[]).map((t) =>
@@ -138,7 +138,31 @@ export class PatternLearner {
       );
       tags.forEach((tag) => {
         if (tag) {
+          // Weight by similarity score
           tagCounts[tag] = (tagCounts[tag] || 0) + match.similarity;
+        }
+      });
+    });
+
+    // Also check for common tag patterns in title
+    const titleWords = taskTitle.toLowerCase().split(/\s+/);
+    const commonTagPatterns: Record<string, string[]> = {
+      bill: ['finance', 'bills', 'payment'],
+      meeting: ['work', 'meetings'],
+      call: ['work', 'communication'],
+      email: ['work', 'communication'],
+      exercise: ['health', 'fitness'],
+      doctor: ['health', 'medical'],
+      buy: ['shopping', 'purchases'],
+      read: ['books', 'learning'],
+    };
+
+    titleWords.forEach((word) => {
+      Object.entries(commonTagPatterns).forEach(([pattern, tags]) => {
+        if (word.includes(pattern)) {
+          tags.forEach((tag) => {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 0.3;
+          });
         }
       });
     });
@@ -146,7 +170,7 @@ export class PatternLearner {
     // Return top tags by weighted frequency
     return Object.entries(tagCounts)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
+      .slice(0, 8)
       .map(([tag]) => tag);
   }
 

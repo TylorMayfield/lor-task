@@ -3,51 +3,302 @@
 @tailwind utilities;
 
 :root {
-  --background: #f5f5f5;
-  --foreground: #2d3748;
-  --sidebar-bg: #ffffff;
-  --primary-color: #3b82f6;
-  --primary-color-hover: #2563eb;
-  --primary-color-light: #eff6ff;
-  --border: #e2e8f0;
-  --text-secondary: #718096;
+  /* Modern Appealing Color System */
+  --md-primary: #0EA5E9;
+  --md-primary-container: #E0F2FE;
+  --md-on-primary: #FFFFFF;
+  --md-on-primary-container: #0C4A6E;
+  
+  --md-secondary: #14B8A6;
+  --md-secondary-container: #CCFBF1;
+  --md-on-secondary: #FFFFFF;
+  --md-on-secondary-container: #134E4A;
+  
+  --md-tertiary: #8B5CF6;
+  --md-tertiary-container: #EDE9FE;
+  --md-on-tertiary: #FFFFFF;
+  --md-on-tertiary-container: #4C1D95;
+  
+  --md-error: #EF4444;
+  --md-error-container: #FEE2E2;
+  --md-on-error: #FFFFFF;
+  --md-on-error-container: #991B1B;
+  
+  --md-surface: #FFFFFF;
+  --md-surface-variant: #F8FAFC;
+  --md-on-surface: #0F172A;
+  --md-on-surface-variant: #64748B;
+  
+  --md-outline: #CBD5E1;
+  --md-outline-variant: #E2E8F0;
+  
+  --md-shadow: rgba(15, 23, 42, 0.1);
+  
+  /* Elevation shadows (Material Design) */
+  --md-elevation-0: none;
+  --md-elevation-1: 0px 1px 2px 0px rgba(15, 23, 42, 0.05), 0px 1px 3px 0px rgba(15, 23, 42, 0.1);
+  --md-elevation-2: 0px 2px 4px -1px rgba(15, 23, 42, 0.06), 0px 4px 6px -1px rgba(15, 23, 42, 0.1);
+  --md-elevation-3: 0px 4px 6px -1px rgba(15, 23, 42, 0.1), 0px 2px 4px -1px rgba(15, 23, 42, 0.06);
+  --md-elevation-4: 0px 10px 15px -3px rgba(15, 23, 42, 0.1), 0px 4px 6px -2px rgba(15, 23, 42, 0.05);
+  --md-elevation-5: 0px 20px 25px -5px rgba(15, 23, 42, 0.1), 0px 10px 10px -5px rgba(15, 23, 42, 0.04);
+  --md-elevation-8: 0px 25px 50px -12px rgba(15, 23, 42, 0.25);
+  --md-elevation-12: 0px 35px 60px -12px rgba(15, 23, 42, 0.3);
+  --md-elevation-16: 0px 40px 80px -16px rgba(15, 23, 42, 0.35);
+  --md-elevation-24: 0px 50px 100px -24px rgba(15, 23, 42, 0.4);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: var(--md-on-surface);
+  background: var(--md-surface);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* Material Design Typography */
+  .md-headline-large {
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 2.5rem;
+    letter-spacing: 0;
   }
   
-  .sidebar-item {
-    @apply flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer;
+  .md-headline-medium {
+    font-size: 1.75rem;
+    font-weight: 400;
+    line-height: 2.25rem;
+    letter-spacing: 0;
   }
   
-  .sidebar-item-active {
-    background-color: var(--primary-color-light) !important;
-    color: var(--primary-color) !important;
+  .md-headline-small {
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 2rem;
+    letter-spacing: 0;
   }
   
-  .sidebar-item-active:hover {
-    background-color: var(--primary-color-light) !important;
+  .md-title-large {
+    font-size: 1.375rem;
+    font-weight: 400;
+    line-height: 1.75rem;
+    letter-spacing: 0;
   }
   
-  .task-card {
-    @apply bg-white border border-gray-200 p-4 transition-all duration-200;
+  .md-title-medium {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+    letter-spacing: 0.15px;
+  }
+  
+  .md-title-small {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    letter-spacing: 0.1px;
+  }
+  
+  .md-body-large {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .md-body-medium {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+    letter-spacing: 0.25px;
+  }
+  
+  .md-body-small {
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1rem;
+    letter-spacing: 0.4px;
+  }
+  
+  .md-label-large {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    letter-spacing: 0.1px;
+  }
+  
+  .md-label-medium {
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .md-label-small {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 0.875rem;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Material Design Elevation */
+  .md-elevation-0 {
+    box-shadow: var(--md-elevation-0);
+  }
+  
+  .md-elevation-1 {
+    box-shadow: var(--md-elevation-1);
+  }
+  
+  .md-elevation-2 {
+    box-shadow: var(--md-elevation-2);
+  }
+  
+  .md-elevation-3 {
+    box-shadow: var(--md-elevation-3);
+  }
+  
+  .md-elevation-4 {
+    box-shadow: var(--md-elevation-4);
+  }
+  
+  .md-elevation-5 {
+    box-shadow: var(--md-elevation-5);
+  }
+  
+  .md-elevation-8 {
+    box-shadow: var(--md-elevation-8);
+  }
+  
+  .md-elevation-12 {
+    box-shadow: var(--md-elevation-12);
+  }
+  
+  .md-elevation-16 {
+    box-shadow: var(--md-elevation-16);
+  }
+  
+  .md-elevation-24 {
+    box-shadow: var(--md-elevation-24);
+  }
+  
+  /* Material Design Surface */
+  .md-surface {
+    background-color: var(--md-surface);
+    color: var(--md-on-surface);
+  }
+  
+  .md-surface-variant {
+    background-color: var(--md-surface-variant);
+    color: var(--md-on-surface-variant);
+  }
+  
+  /* Material Design Cards */
+  .md-card {
+    background-color: var(--md-surface);
     border-radius: 12px;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    padding: 16px;
+    box-shadow: var(--md-elevation-1);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
   
-  .task-card:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transform: translateY(-1px);
+  .md-card:hover {
+    box-shadow: var(--md-elevation-2);
+  }
+  
+  .md-card-elevated {
+    box-shadow: var(--md-elevation-2);
+  }
+  
+  .md-card-elevated:hover {
+    box-shadow: var(--md-elevation-4);
+  }
+  
+  /* Material Design Buttons */
+  .md-button {
+    border-radius: 20px;
+    padding: 10px 24px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .md-button-filled {
+    background-color: var(--md-primary);
+    color: var(--md-on-primary);
+    box-shadow: var(--md-elevation-1);
+  }
+  
+  .md-button-filled:hover {
+    box-shadow: var(--md-elevation-2);
+    background-color: var(--md-primary);
+    opacity: 0.92;
+  }
+  
+  .md-button-outlined {
+    background-color: transparent;
+    color: var(--md-primary);
+    border: 1px solid var(--md-outline);
+  }
+  
+  .md-button-text {
+    background-color: transparent;
+    color: var(--md-primary);
+    padding: 10px 12px;
+  }
+  
+  /* Ripple effect */
+  .md-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .md-ripple::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    width: 100px;
+    height: 100px;
+    margin-top: -50px;
+    margin-left: -50px;
+    top: 50%;
+    left: 50%;
+    transform: scale(0);
+    animation: ripple 0.6s;
+    pointer-events: none;
+  }
+  
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+  
+  /* Custom scrollbar */
+  .md-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .md-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .md-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--md-outline-variant);
+    border-radius: 4px;
+  }
+  
+  .md-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--md-outline);
   }
 }
-

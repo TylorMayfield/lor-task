@@ -121,17 +121,32 @@ export async function POST(request: NextRequest) {
     }
 
     let parsedTask;
-    if (text) {
-      // Use NLP to parse the task
-      parsedTask = parseTaskFromNLP(text);
-    } else {
-      parsedTask = taskData;
+    try {
+      if (text) {
+        // Use NLP to parse the task
+        parsedTask = parseTaskFromNLP(text);
+      } else {
+        parsedTask = taskData;
+      }
+    } catch (error) {
+      console.error('Error parsing task:', error);
+      // Fallback to basic task creation
+      parsedTask = {
+        title: text || taskData.title || 'Untitled Task',
+        description: taskData.description,
+        priority: taskData.priority || TaskPriority.MEDIUM,
+        tags: taskData.tags || [],
+      };
     }
 
-    // Get or create tags
+    // Get or create tags - prioritize tags from body, then from NLP parsing
     const tagIds: string[] = [];
-    if (parsedTask.tags && parsedTask.tags.length > 0) {
-      for (const tagName of parsedTask.tags) {
+    const tagsToProcess = body.tags && body.tags.length > 0 
+      ? body.tags 
+      : (parsedTask.tags && parsedTask.tags.length > 0 ? parsedTask.tags : []);
+    
+    if (tagsToProcess.length > 0) {
+      for (const tagName of tagsToProcess) {
         let tag = await Tag.findOne({ userId: session.user.id, name: tagName });
         if (!tag) {
           tag = await Tag.create({
@@ -143,22 +158,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Calculate optimal schedule
-    const scheduledDate = calculateOptimalSchedule(
-      {
-        ...parsedTask,
-        priority: parsedTask.priority || TaskPriority.MEDIUM,
-      },
-      { existingTasks: [] }
-    );
+    // Calculate optimal schedule (only if smart scheduling is enabled and no explicit date provided)
+    let scheduledDate = parsedTask.scheduledDate ? new Date(parsedTask.scheduledDate) : undefined;
+    if (!scheduledDate && !parsedTask.dueDate) {
+      try {
+        scheduledDate = calculateOptimalSchedule(
+          {
+            ...parsedTask,
+            priority: parsedTask.priority || TaskPriority.MEDIUM,
+          },
+          { existingTasks: [] }
+        ) || undefined;
+      } catch (error) {
+        console.error('Error calculating schedule:', error);
+        scheduledDate = undefined;
+      }
+    }
 
     // Determine if task should be in inbox
     // Task is in inbox if it has no category, no board, no scheduled date, and no due date
     const isInbox = !body.categoryId && 
                     !boardId && 
                     !scheduledDate && 
-                    !parsedTask.dueDate &&
-                    !parsedTask.scheduledDate;
+                    !parsedTask.dueDate;
 
     const task = await Task.create({
       title: parsedTask.title,
