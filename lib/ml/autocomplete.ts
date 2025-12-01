@@ -1,7 +1,7 @@
 import { patternLearner } from './patternLearner';
 import Task from '../models/Task';
 import Tag from '../models/Tag';
-import mongoose from 'mongoose';
+import connectDB from '../mongodb';
 
 interface AutocompleteSuggestion {
   text: string;
@@ -51,7 +51,7 @@ export class AutocompleteEngine {
     userId: string,
     input: string
   ): Promise<AutocompleteSuggestion[]> {
-    await mongoose.connect(process.env.MONGODB_URI!);
+    await connectDB();
 
     // Get all user tags
     const allTags = await Tag.find({ userId }).lean();
@@ -100,7 +100,7 @@ export class AutocompleteEngine {
     userId: string,
     input: string
   ): Promise<AutocompleteSuggestion[]> {
-    await mongoose.connect(process.env.MONGODB_URI!);
+    await connectDB();
 
     // Get recent completed tasks with similar titles
     const similarTasks = await Task.find({
@@ -127,7 +127,7 @@ export class AutocompleteEngine {
     userId: string,
     input: string
   ): Promise<AutocompleteSuggestion[]> {
-    await mongoose.connect(process.env.MONGODB_URI!);
+    await connectDB();
 
     // Get common task patterns
     const recentTasks = await Task.find({ userId })

@@ -141,26 +141,23 @@ export default function TaskInput({ onTaskCreated, boardId }: TaskInputProps) {
     <div className="relative">
       <form onSubmit={handleSubmit} className="relative">
         <div
-          className={`flex items-center gap-3 px-4 py-3 bg-[var(--md-surface)] transition-all ${
+          className={`flex items-center gap-3 px-4 py-3 bg-[#1c1c1e] transition-all ${
             focused
-              ? 'md-elevation-2'
-              : 'md-elevation-0'
+              ? 'shadow-lg border-blue-500'
+              : 'shadow-sm border-[#38383a]'
           }`}
           style={{ 
-            borderRadius: '28px',
-            border: focused 
-              ? '1px solid var(--md-primary)' 
-              : '1px solid var(--md-outline-variant)'
+            borderRadius: '12px',
+            border: '1px solid',
           }}
         >
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="w-8 h-8 rounded-full bg-[var(--md-primary)] text-[var(--md-on-primary)] flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed md-ripple"
-            style={{ borderRadius: '20px' }}
+            className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 active:scale-95"
           >
             {loading ? (
-              <div className="w-4 h-4 border-2 border-[var(--md-on-primary)] border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <Plus className="w-5 h-5" />
             )}
@@ -179,9 +176,9 @@ export default function TaskInput({ onTaskCreated, boardId }: TaskInputProps) {
               }}
               onKeyDown={handleKeyDown}
               placeholder="Add a task... (try typing to see AI suggestions)"
-              className="w-full px-0 py-1 border-0 bg-transparent text-[var(--md-on-surface)] placeholder:text-[var(--md-on-surface-variant)] focus:outline-none md-body-large"
+              className="w-full px-0 py-1 border-0 bg-transparent text-white placeholder:text-gray-500 focus:outline-none ios-body"
               disabled={loading}
-              style={{ caretColor: 'var(--md-primary)' }}
+              style={{ caretColor: '#007AFF' }}
             />
             {focused && input && (
               <div
@@ -200,8 +197,7 @@ export default function TaskInput({ onTaskCreated, boardId }: TaskInputProps) {
       {showSuggestions && suggestions.length > 0 && focused && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-[var(--md-surface)] md-elevation-8 border border-[var(--md-outline-variant)] rounded-2xl overflow-hidden z-50"
-          style={{ borderRadius: '16px' }}
+          className="absolute top-full left-0 right-0 mt-2 bg-[#1c1c1e] shadow-xl border border-[#38383a] rounded-xl overflow-hidden z-50"
         >
           <div className="p-2">
             {suggestions.map((suggestion, idx) => (
@@ -210,18 +206,18 @@ export default function TaskInput({ onTaskCreated, boardId }: TaskInputProps) {
                 onClick={() => handleSuggestionSelect(suggestion)}
                 className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
                   idx === selectedIndex
-                    ? 'bg-[var(--md-primary-container)] text-[var(--md-on-primary-container)]'
-                    : 'hover:bg-[var(--md-surface-variant)] text-[var(--md-on-surface)]'
+                    ? 'bg-blue-600/20 text-blue-400'
+                    : 'hover:bg-[#2c2c2e] text-white'
                 }`}
               >
                 <div className={`w-2 h-2 rounded-full ${
-                  suggestion.type === 'tag' ? 'bg-[var(--md-secondary)]' :
-                  suggestion.type === 'task' ? 'bg-[var(--md-primary)]' :
-                  suggestion.type === 'pattern' ? 'bg-[var(--md-tertiary)]' :
-                  'bg-[var(--md-outline)]'
+                  suggestion.type === 'tag' ? 'bg-green-500' :
+                  suggestion.type === 'task' ? 'bg-blue-600' :
+                  suggestion.type === 'pattern' ? 'bg-purple-600' :
+                  'bg-gray-400'
                 }`} />
-                <span className="md-body-medium flex-1">{suggestion.text}</span>
-                <span className="md-label-small text-[var(--md-on-surface-variant)]">
+                <span className="ios-body flex-1">{suggestion.text}</span>
+                <span className="ios-footnote text-gray-400">
                   {suggestion.type}
                 </span>
               </button>

@@ -150,7 +150,7 @@ export default function SemanticHighlighter({ text, className = '' }: SemanticHi
           return (
             <span
               key={idx}
-              className={`${getHighlightColor(part.highlight.type)} px-1 rounded font-medium`}
+              className={`${getHighlightColor(part.highlight.type)} px-1 mr-1 rounded font-medium`}
               style={{ borderRadius: '4px' }}
             >
               {part.text}
