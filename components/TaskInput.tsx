@@ -143,12 +143,11 @@ export default function TaskInput({ onTaskCreated, boardId }: TaskInputProps) {
         <div
           className={`flex items-center gap-3 px-4 py-3 bg-[#1c1c1e] transition-all ${
             focused
-              ? 'shadow-lg border-blue-500'
-              : 'shadow-sm border-[#38383a]'
+              ? 'shadow-lg border border-blue-500'
+              : 'shadow-sm border border-[#38383a]'
           }`}
           style={{ 
             borderRadius: '12px',
-            border: '1px solid',
           }}
         >
           <button
